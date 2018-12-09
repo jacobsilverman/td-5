@@ -110,6 +110,13 @@ $(document).on('click', '.modal-next.btn', function(e){
   $(`.modal-container#${nextId}`).show();
 });
 
+/* make a style change */
+
+function changeBackgroundColor(){
+  $('body').css('background-color','#bbd8ec');
+  $('.header-text-container > h1').css('margin-top','31px')
+}
+
 /* PERSONAL TOUCH */
 
 /* Add a obvious way to get a new list after filter. */
@@ -183,5 +190,6 @@ $.ajax({
     appendModal(userArr);
     appendSearch();
     appendGetListButton();
+    changeBackgroundColor();
   }
 }).catch(e => console.log('error ',e));
