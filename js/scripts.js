@@ -66,7 +66,6 @@ $(document).on('click','.search-submit',function(e){
   } else {
     console.log('should not get here either!')
   }
-  console.log('length: ',$('.prev__button').length);
   if($('.prev__button').length === 0){
     appendPrevListButton();
   }
@@ -91,7 +90,6 @@ $(document).on('click','.search-submit',function(e){
 /* Make sure there’s a way to close the modal window */
 
 function closeWindow(e){
-  console.log('closing')
   const elId = $(e.target).closest('.modal-container').prop('id');
   $(`.modal-container#${elId}`).hide();
 }
@@ -123,7 +121,6 @@ $(document).on('click', '.modal-next.btn', function(e){
       return obj;
     }
   });
-  console.log(`${currentIndex} of ${currentArrayToNavigate.length-1}`);
   const nextId = currentArrayToNavigate[currentIndex+1].id;
   $(`.modal-container#${currentId}`).hide();
   $(`.modal-container#${nextId}`).show();
@@ -159,8 +156,6 @@ function appendPrevListButton(){
 }
 
 function removePrevListButton(){
-  console.log('removing...')
-  console.log($('<button class="prev__button">PREV LIST</button>'));
   $('.prev__button').remove();
 }
 
@@ -219,8 +214,6 @@ function getStarted(){
         }
       }
     }
-    // userArr = [];
-    // userArr.indexOf({id: randUser.id}) === -1 ? userArr.push({image: randUser.image, name: randUser.name, email: randUser.email, street: randUser.street, city: randUser.city, state: randUser.state, postcode: randUser.postcode, cell: randUser.cell, birth: randUser.birth, id: randUser.id}) : console.log("This item already exists");
     userArr.push({image: randUser.image, name: randUser.name, email: randUser.email, street: randUser.street, city: randUser.city, state: randUser.state, postcode: randUser.postcode, cell: randUser.cell, birth: randUser.birth, id: randUser.id});
   }
   appendGallery(userArr);
