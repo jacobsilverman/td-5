@@ -1,3 +1,4 @@
+let data = {};
 let userArr = [];
 
 /* display the 12 random users. this code block prepares the HTML as a string and then replaces the necessary div in
@@ -65,6 +66,10 @@ $(document).on('click','.search-submit',function(e){
   } else {
     console.log('should not get here either!')
   }
+  console.log('length: ',$('.prev__button').length);
+  if($('.prev__button').length === 0){
+    appendPrevListButton();
+  }
 });
 
 /* a user can click anywhere inside the card to open the modal */
@@ -72,13 +77,27 @@ $(document).on('click','.search-submit',function(e){
  $(document).on('click', '.card',function(e){
   const elId = $(e.target).closest('.card').prop('id');
   $(`.modal-container#${elId}`).show();
+
+   /* Add exit on click away from modal. */
+
+   $(document).on('click', function(e) {
+     if ($(e.target).is(`.modal-container#${elId}`)) {
+       closeWindow(e);
+     }
+   });
+
 });
 
 /* Make sure there’s a way to close the modal window */
 
-$(document).on('click', '#modal-close-btn',function(e){
+function closeWindow(e){
+  console.log('closing')
   const elId = $(e.target).closest('.modal-container').prop('id');
   $(`.modal-container#${elId}`).hide();
+}
+
+$(document).on('click', '#modal-close-btn',function(e){
+  closeWindow(e);
 });
 
 /* Add a way to toggle back and forth between employees when the modal window is open. */
@@ -122,7 +141,7 @@ function changeBackgroundColor(){
 /* Add a obvious way to get a new list after filter. */
 
 function appendGetListButton(){
-  $('<button class="reset__button">GET NEW LIST</button>')
+  $('<button class="reset__button">NEW LIST</button>')
     .insertAfter('.header-text-container')
     .css({'height':'32px','width':'auto','margin-top':'25px','font-size':'1em'});
 }
@@ -131,63 +150,94 @@ $(document).on('click','.reset__button',function(){
   location.reload();
 });
 
+/* Add a obvious way to get back to the prev list after filter. */
+
+function appendPrevListButton(){
+  $('<button class="prev__button">PREV LIST</button>')
+    .insertAfter('.reset__button')
+    .css({'height':'32px','width':'auto','margin-top':'25px','font-size':'1em'});
+}
+
+function removePrevListButton(){
+  console.log('removing...')
+  console.log($('<button class="prev__button">PREV LIST</button>'));
+  $('.prev__button').remove();
+}
+
+$(document).on('click','.reset__button',function(){
+  location.reload();
+});
+
+$(document).on('click','.prev__button',function() {
+  userArr = [];
+  getStarted();
+  removePrevListButton();
+});
+
+
+function getStarted(){
+  for (const key of Object.keys(data.results)) {
+    /* for each object in the response array, store the required informtion */
+    let randUser = {image:'', name:'', email:'', street: '', city: '', state:'', postcode:'', cell: '', birth:'',id:''};
+    for (const key2 of Object.keys(data.results[key])) {
+      switch (key2) {
+        case "picture": {
+          randUser.image = data.results[key][key2].large;
+          break;
+        }
+        case "name": {
+          randUser.name = `${data.results[key][key2].first} ${data.results[key][key2].last}`;
+          break;
+        }
+        case "email": {
+          randUser.email = data.results[key][key2];
+          break;
+        }
+        case "location": {
+          randUser.street = data.results[key][key2].street;
+          randUser.city = data.results[key][key2].city;
+          randUser.state = data.results[key][key2].state;
+          randUser.postcode = data.results[key][key2].postcode;
+          break;
+        }
+        case "dob": {
+          let birth = data.results[key][key2].date;
+          birth = birth.slice(0,birth.indexOf("T")).split("-");
+          randUser.birth = birth[1] + '/'+ birth[2] + '/' + birth[0];
+          break;
+        }
+        case "cell": {
+          randUser.cell = data.results[key][key2];
+          break;
+        }
+        case "id": {
+          randUser.id = 'ID' + data.results[key][key2].value.replace(/[\s\-]/g,'');
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+    }
+    // userArr = [];
+    // userArr.indexOf({id: randUser.id}) === -1 ? userArr.push({image: randUser.image, name: randUser.name, email: randUser.email, street: randUser.street, city: randUser.city, state: randUser.state, postcode: randUser.postcode, cell: randUser.cell, birth: randUser.birth, id: randUser.id}) : console.log("This item already exists");
+    userArr.push({image: randUser.image, name: randUser.name, email: randUser.email, street: randUser.street, city: randUser.city, state: randUser.state, postcode: randUser.postcode, cell: randUser.cell, birth: randUser.birth, id: randUser.id});
+  }
+  appendGallery(userArr);
+  appendModal(userArr);
+}
+
 /* AJAX REQUEST */
 
 $.ajax({
   url: 'https://randomuser.me/api/?inc=picture,name,email,location,nat,dob,cell,id&&results=12&nat=gb,us',
   dataType: 'json',
-  success: function(data) {
+  success: function(myData) {
     /* PARSE RESPONSE */
-    for (const key of Object.keys(data.results)) {
-      /* for each object in the response array, store the required informtion */
-      let randUser = {image:'', name:'', email:'', street: '', city: '', state:'', postcode:'', cell: '', birth:'',id:''};
-      for (const key2 of Object.keys(data.results[key])) {
-        switch (key2) {
-          case "picture": {
-            randUser.image = data.results[key][key2].large;
-            break;
-          }
-          case "name": {
-            randUser.name = `${data.results[key][key2].first} ${data.results[key][key2].last}`;
-            break;
-          }
-          case "email": {
-            randUser.email = data.results[key][key2];
-            break;
-          }
-          case "location": {
-            randUser.street = data.results[key][key2].street;
-            randUser.city = data.results[key][key2].city;
-            randUser.state = data.results[key][key2].state;
-            randUser.postcode = data.results[key][key2].postcode;
-            break;
-          }
-          case "dob": {
-            let birth = data.results[key][key2].date;
-            birth = birth.slice(0,birth.indexOf("T")).split("-");
-            randUser.birth = birth[1] + '/'+ birth[2] + '/' + birth[0];
-            break;
-          }
-          case "cell": {
-            randUser.cell = data.results[key][key2];
-            break;
-          }
-          case "id": {
-            randUser.id = 'ID' + data.results[key][key2].value.replace(/[\s\-]/g,'');
-            break;
-          }
-          default: {
-            break;
-          }
-        }
-      }
-      userArr.push({image: randUser.image, name: randUser.name, email: randUser.email, street: randUser.street, city: randUser.city, state: randUser.state, postcode: randUser.postcode, cell: randUser.cell, birth: randUser.birth, id: randUser.id});
-    }
+    data = myData;
+    getStarted();
     /* call all the helper functions to place the gallery and modal div's, append search bar (extra credit) and get
      list button (personal touch) */
-
-    appendGallery(userArr);
-    appendModal(userArr);
     appendSearch();
     appendGetListButton();
     changeBackgroundColor();
